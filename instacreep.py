@@ -1,10 +1,11 @@
 from time import sleep
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
+import getpass
 
 user = str(raw_input('who we spamming? '))
 name = str(raw_input('whats ya ig username? '))
-pw = str(raw_input('whats ya ig password? '))
+pw = getpass.getpass('whats ya ig password? ')
 
 driver = webdriver.Chrome()
 
@@ -20,9 +21,6 @@ driver.find_element_by_name("login").click()
 
 sleep(3)
 
-body_elem = driver.find_element_by_tag_name('body')
-body_elem.send_keys(Keys.END)
-body_elem.send_keys(Keys.HOME)
 print 'okay were in instagram succesfully.'
 
 ##find all the heart links on your newsfeed
@@ -47,9 +45,30 @@ element.send_keys(Keys.RETURN)
 element.send_keys(Keys.RETURN)
 sleep(3)
 
-# find all the pictures on someone's instagram
-pics = driver.find_elements_by_xpath('//div[contains(@class, "_mck9w _gvoze _f2mse")]')
+# scrape the number of total posts off profile
+try:
+    total = driver.find_element_by_xpath('//span[contains(@class, "_fd86t")]').text
+    print 'this user has {} pictures.'.format(total)
+except:
+    print "oh no, couldn\'t find the count."
 
+# get ig to load all pics on person's profile
+body_elem = driver.find_element_by_tag_name('body')
+body_elem.send_keys(Keys.END)
+sleep(3)
+pics = driver.find_elements_by_xpath('//div[contains(@class, "_mck9w _gvoze _tn0ps")]')
+num_pics = len(pics)
+while True:
+    body_elem.send_keys(Keys.END)
+    sleep(3)
+    num_pics += 12 # ig loads pictures 12 at a time as you scroll down
+    print "currently getting all the pictures to load... {}/{}".format(num_pics, total)
+
+    if num_pics > int(total):
+        break
+
+# find all the pictures on someone's instagram
+pics = driver.find_elements_by_xpath('//div[contains(@class, "_mck9w _gvoze _tn0ps")]')
 if len(pics) == 0:
     print 'There are {} likable things on this person\'s profile'.format(len(pics))
 else:
